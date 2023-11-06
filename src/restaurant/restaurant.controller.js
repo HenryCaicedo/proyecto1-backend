@@ -1,5 +1,6 @@
 // src/restaurant/restaurant.controller.js
 const Restaurant = require("./restaurant.model");
+const Order = require("../order/order.model");
 
 const createRestaurant = async (req, res) => {
     try {
@@ -28,7 +29,6 @@ const readRestaurant = async (req, res) => {
             return;
         }
 
-        // Check if the restaurant with the given ID exists and is active
         const restaurant = await Restaurant.findOne({ _id: restaurantId, active: true });
 
         if (!restaurant) {
@@ -134,19 +134,5 @@ const deleteRestaurant = async (req, res) => {
 };
 
 
-// ELIMINAR
-const showAllRestaurants = async (req, res) => {
-    try {
-        const restaurants = await Restaurant.find({});
 
-        if (restaurants.length === 0) {
-            res.status(404).json({ error: 'No se encontraron restaurantes' });
-        } else {
-            res.status(200).json(restaurants);
-        }
-    } catch (error) {
-        res.status(500).json({ error: 'Error al obtener todos los restaurantes' });
-    }
-};
-
-module.exports = { createRestaurant, readRestaurant, readRestaurants, updateRestaurant, deleteRestaurant, showAllRestaurants };
+module.exports = { createRestaurant, readRestaurant, readRestaurants, updateRestaurant, deleteRestaurant };

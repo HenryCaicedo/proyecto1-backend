@@ -1,6 +1,6 @@
 // src/restaurant/restaurant.routes.js
 const { Router } = require("express");
-const { createRestaurant, readRestaurant, readRestaurants, updateRestaurant, deleteRestaurant, showAllRestaurants } = require("./restaurant.controller");
+const { createRestaurant, readRestaurant, readRestaurants, updateRestaurant, deleteRestaurant } = require("./restaurant.controller");
 const router = Router();
 
 // Crear Restaurante
@@ -17,8 +17,5 @@ router.patch('/:restaurantId', updateRestaurant);
 
 // Inhabilitar restaurante
 router.delete('/:restaurantId', deleteRestaurant);
-
-// Mostrar a todos los restaurantes
-router.post('/all', showAllRestaurants);
 
 module.exports = router;

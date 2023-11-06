@@ -130,20 +130,4 @@ const deleteProduct = async (req, res) => {
 
 
 
-const viewAllProducts = async (req, res) => {
-    try {
-        // Retrieve all products from the database
-        const products = await Product.find();
-
-        if (products.length === 0) {
-            res.status(404).json({ error: 'No se encontraron productos' });
-            return;
-        }
-
-        res.status(200).json(products);
-    } catch (error) {
-        res.status(500).json({ error: 'Error al obtener todos los productos' });
-    }
-};
-
-module.exports = { createProduct, readProduct, readProducts, updateProduct, deleteProduct, viewAllProducts };
+module.exports = { createProduct, readProduct, readProducts, updateProduct, deleteProduct };

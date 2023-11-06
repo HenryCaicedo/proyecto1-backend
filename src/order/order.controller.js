@@ -32,20 +32,6 @@ const readOrder = async (req, res) => {
     }
 };
 
-const readSentOrder = async (req, res) => {
-    try {
-        const sentOrders = await Order.find({
-            status: 'sent',
-            active: true,
-        });
-
-        res.status(200).json(sentOrders);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-};
-
 
 const readOrders = async (req, res) => {
     try {
@@ -77,6 +63,23 @@ const readOrders = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+
+const readSentOrder = async (req, res) => {
+    try {
+        const sentOrders = await Order.find({
+            status: 'sent',
+            active: true,
+        });
+
+        res.status(200).json(sentOrders);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
 
 
 
@@ -143,20 +146,4 @@ const deleteOrder = async (req, res) => {
 };
 
 
-
-// ELIMINAR
-const showAllOrders = async (req, res) => {
-    try {
-        const orders = await Order.find({});
-
-        if (orders.length === 0) {
-            res.status(404).json({ error: 'No se encontraron órdenes' });
-        } else {
-            res.status(200).json(orders);
-        }
-    } catch (error) {
-        res.status(500).json({ error: 'Error al obtener todas las órdenes' });
-    }
-};
-
-module.exports = { createOrder, readOrder, readOrders, readSentOrder ,updateOrder, deleteOrder, showAllOrders };
+module.exports = { createOrder, readOrder, readOrders, readSentOrder ,updateOrder, deleteOrder };

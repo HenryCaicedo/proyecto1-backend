@@ -1,9 +1,6 @@
 // src/user.controller.js
 const User = require("./user.model");
 
-const prueba = (req, res) => {
-    res.send('Bienvenido a prueba');
-};
 
 // Crear Usuario
 const createUser = async (req, res) => {
@@ -22,21 +19,6 @@ const createUser = async (req, res) => {
 };
 
 
-// Obtener usuario por ID
-const getUserById = async (req, res) => {
-    try {
-        const userId = req.params.userId;
-        const user = await User.findById(userId);
-
-        if (!user) {
-            res.status(404).send('Usuario no encontrado');
-        } else {
-            res.status(200).send(user);
-        }
-    } catch (error) {
-        res.status(500).json({ error: 'Error al obtener un usuario por ID' });
-    }
-};
 
 // Obtener usuario por credenciales
 const readUser = async (req, res) => {
