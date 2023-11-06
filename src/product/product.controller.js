@@ -46,25 +46,27 @@ const readProduct = async (req, res) => {
 
 const readProducts = async (req, res) => {
     try {
-        const category = req.query.category;
+        const { category, restaurant } = req.query;
+        const query = { active: true };
 
-        if (!category) {
-            res.status(400).json({ error: 'Se requiere una categoría para filtrar productos' });
-            return;
+        if (category) query.category = category;
+        if (restaurant) query.restaurant = restaurant;
+
+        const productList = await Product.aggregate([
+            { $match: query },
+            { $sort: { category: 1 } },
+            {
+              $group: {
+                _id: '$category',
+                products: { $push: '$$ROOT' },
+              },
+            },
+          ]);
+      
+          res.status(200).json(productList);
+        } catch (err) {
+          res.status(500).json(err);
         }
-
-        // Find products by category
-        const products = await Product.find({ category: category });
-
-        if (products.length === 0) {
-            res.status(404).json({ error: 'No se encontraron productos en esta categoría' });
-            return;
-        }
-
-        res.status(200).json(products);
-    } catch (error) {
-        res.status(500).json({ error: 'Error al filtrar productos por categoría' });
-    }
 };
 
 

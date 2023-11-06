@@ -3,7 +3,8 @@ const Restaurant = require("./restaurant.model");
 
 const createRestaurant = async (req, res) => {
     try {
-        const restaurantData = req.body;
+        const { userId, ...restaurantData } = req.body; 
+        restaurantData.adminId = userId;
         const restaurant = new Restaurant(restaurantData);
         const newRestaurant = await restaurant.save();
         res.status(201).json({
@@ -15,6 +16,7 @@ const createRestaurant = async (req, res) => {
         res.status(500).json({ error: 'Error al crear un restaurante' });
     }
 };
+
 
 
 const readRestaurant = async (req, res) => {
@@ -42,25 +44,35 @@ const readRestaurant = async (req, res) => {
 
 const readRestaurants = async (req, res) => {
     try {
-        const { category } = req.query;
+        const { category, name } = req.query;
+        const query = { active: true };
 
-        if (!category) {
-            res.status(400).json({ error: 'Se requiere una categoría para filtrar restaurantes' });
-            return;
-        }
+        if (category) query.category = category;
+        if (name) query.name = { $regex: new RegExp(name, 'i') };
 
-        const restaurants = await Restaurant.find({ category });
+        const restaurants = await Restaurant.find(query);
 
-        if (restaurants.length === 0) {
-            res.status(404).json({ error: 'No se encontraron restaurantes para la categoría especificada' });
-            return;
-        }
+        const calculatePopularity = async (restaurant) => {
+            const c = await Order.countDocuments({
+                restaurant: restaurant._id,
+                status: 'completed',
+            });
+            restaurant._doc.popularity = c;
+            return restaurant;
+        };
 
-        res.status(200).json(restaurants);
-    } catch (error) {
-        res.status(500).json({ error: 'Error al filtrar restaurantes por categoría' });
+        const restaurantsPopularityList = await Promise.all(
+            restaurants.map(calculatePopularity)
+        );
+
+        restaurantsPopularityList.sort((a, b) => b._doc.popularity - a._doc.popularity);
+
+        res.status(200).json(restaurantsPopularityList);
+    } catch (err) {
+        res.status(500).json(err);
     }
-};
+}
+
 
 
 const updateRestaurant = async (req, res) => {
@@ -72,7 +84,7 @@ const updateRestaurant = async (req, res) => {
             return;
         }
 
-        const updates = req.body; 
+        const updates = req.body;
 
         const existingRestaurant = await Restaurant.findOne({ _id: restaurantId, active: true });
 

@@ -15,6 +15,7 @@ const createOrder = async (req, res) => {
     }
 };
 
+
 const readOrder = async (req, res) => {
     try {
         const orderId = req.params.orderId;
@@ -31,22 +32,53 @@ const readOrder = async (req, res) => {
     }
 };
 
-const readOrders = async (req, res) => {
+const readSentOrder = async (req, res) => {
     try {
-        
+        const sentOrders = await Order.find({
+            status: 'sent',
+            active: true,
+        });
 
-
-        const filteredOrders = await Order.find({});
-
-        if (filteredOrders.length === 0) {
-            res.status(404).json({ error: 'No se encontraron órdenes que coincidan con los filtros' });
-        } else {
-            res.status(200).json(filteredOrders);
-        }
+        res.status(200).json(sentOrders);
     } catch (error) {
-        res.status(500).json({ error: 'Error al obtener las órdenes con los filtros proporcionados' });
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+
+const readOrders = async (req, res) => {
+    try {
+        const { userId, restaurantId, startDate, endDate } = req.query;
+
+        const filter = {};
+
+        if (userId) {
+            filter.userId = userId;
+        }
+
+
+        if (restaurantId) {
+            filter.restaurantId = restaurantId;
+        }
+
+        if (startDate && endDate) {
+            filter.datetime = {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate),
+            };
+        }
+
+        const filteredOrders = await Order.find(filter);
+
+        res.status(200).json(filteredOrders);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
 
 const updateOrder = async (req, res) => {
     try {
@@ -66,6 +98,11 @@ const updateOrder = async (req, res) => {
 
         if (!order.active) {
             res.status(400).json({ error: 'No se pueden actualizar órdenes inactivas' });
+            return;
+        }
+
+        if (order.status == 'sent'){
+            res.status(400).json({ error: 'No se pueden actualizar órdenes ya enviadas' });
             return;
         }
 
@@ -122,4 +159,4 @@ const showAllOrders = async (req, res) => {
     }
 };
 
-module.exports = { createOrder, readOrder, readOrders, updateOrder, deleteOrder, showAllOrders };
+module.exports = { createOrder, readOrder, readOrders, readSentOrder ,updateOrder, deleteOrder, showAllOrders };
